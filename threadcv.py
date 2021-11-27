@@ -192,6 +192,7 @@ while True:
         print("[INFO] classification took {:.5} seconds".format(terminate - begin))
         end = time.time()
         break
+    time.sleep(1)
 
 # do a bit of cleanup
 print("[INFO] cleaning up...")
