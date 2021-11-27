@@ -128,7 +128,6 @@ time.sleep(2.0)
 start = time.time()
 #fps = FPS().start()
 f = 0
-cam=Camera('http://192.168.8.148:4747/video')
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream and resize it
