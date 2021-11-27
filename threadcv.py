@@ -121,8 +121,8 @@ model = tensorflow.keras.models.load_model(MODEL_PATH)
 
 # initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-#vs = VideoStream(src=0).start()
-vs = VideoStream(usePiCamera=True).start()
+vs = VideoStream(src=0).start()
+# vs = VideoStream(usePiCamera=True).start()
 time.sleep(2.0)
 start = time.time()
 #fps = FPS().start()
@@ -166,7 +166,7 @@ while True:
             #CODE FOR NOTIFICATION SYSTEM HERE
 	    #A siren will be played indefinitely on the speaker
             mixer.init()
-            mixer.music.load('/home/pi/Desktop/siren.mp3')
+            mixer.music.load('./siren.mp3')
             mixer.music.play(-1)
             response = requests.post('https://firemex.herokuapp.com/userDetails/emergencyCall,', data = {'serialNumber':'FX114722940','apiKey':'UDVJBFI-JFTUWYA-XE4YCBA-FUYXQBY'})
             # otherwise, reset the total number of consecutive frames and the
