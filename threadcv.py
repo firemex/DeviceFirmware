@@ -109,7 +109,7 @@ from tensorflow.keras.preprocessing.image import img_to_array
 # initialize the total number of frames that *consecutively* contain fire
 # along with threshold required to trigger the fire alarm
 TOTAL_CONSEC = 0
-TOTAL_THRESH = 10
+TOTAL_THRESH = 5
 # initialize the fire alarm
 FIRE = False
 
@@ -154,15 +154,19 @@ while True:
     proba = notFire
     # check to see if fire was detected using our convolutional
     # neural network
-    if fire > notFire:
+    key = cv2.waitKey(1) & 0xFF
+
+    if key==ord('p'):
+    # if fire > notFire:
         # update the label and prediction probability
         label = "Fire"
-        proba = fire
- 
+        proba = fire if fire > notFire else notFire
+        print("Fire Detected")
         # increment the total number of consecutive frames that
         # contain fire
         TOTAL_CONSEC += 1
         if not FIRE and TOTAL_CONSEC >= TOTAL_THRESH:
+            print("Alert triggered")
             # indicate that fire has been found
             FIRE = True
             #CODE FOR NOTIFICATION SYSTEM HERE
