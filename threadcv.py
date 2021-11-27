@@ -171,7 +171,14 @@ while True:
             FIRE = True
             #CODE FOR NOTIFICATION SYSTEM HERE
 	    #A siren will be played indefinitely on the speaker
-            response = requests.post('https://firemex.herokuapp.com/userDetails/emergencyCall,', data = {'serialNumber':'FX114722940','apiKey':'UDVJBFI-JFTUWYA-XE4YCBA-FUYXQBY'})
+            url = "https://firemex.herokuapp.com/userDetails/emergencyCall"
+            payload='serialNumber=FX114722940&apiKey=UDVJBFI-JFTUWYA-XE4YCBA-FUYXQBY'
+            headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+            }
+            response = requests.request("POST", url, headers=headers, data=payload)
+            print(response.text)
+
             mixer.init()
             mixer.music.load('./siren.mp3')
             mixer.music.play(loops=2)
