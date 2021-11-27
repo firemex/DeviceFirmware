@@ -2,6 +2,77 @@
 #Ensure that a raspberry pi camera module is connected to the pi for video streaming
 #It does the final realtime prediction by taking continuous video feed from the camera, inputting each frame to the model and performing prediction on each frame abd outputting result
 #Connect a Speaker to the raspberry pi to hear siren after positive fire detection
+import cv2
+import time
+import multiprocessing as mp
+
+class Camera():
+    
+    def __init__(self,rtsp_url):        
+        #load pipe for data transmittion to the process
+        self.parent_conn, child_conn = mp.Pipe()
+        #load process
+        self.p = mp.Process(target=self.update, args=(child_conn,rtsp_url))        
+        #start process
+        self.p.daemon = True
+        self.p.start()
+        
+    def end(self):
+        #send closure request to process
+        
+        self.parent_conn.send(2)
+        
+    def update(self,conn,rtsp_url):
+        #load cam into seperate process
+        
+        print("Cam Loading...")
+        cap = cv2.VideoCapture(rtsp_url,cv2.CAP_FFMPEG)   
+        print("Cam Loaded...")
+        run = True
+        
+        while run:
+            
+            #grab frames from the buffer
+            cap.grab()
+            
+            #recieve input data
+            rec_dat = conn.recv()
+            
+            
+            if rec_dat == 1:
+                #if frame requested
+                ret,frame = cap.read()
+                conn.send(frame)
+                
+            elif rec_dat ==2:
+                #if close requested
+                cap.release()
+                run = False
+                
+        print("Camera Connection Closed")        
+        conn.close()
+    
+    def get_frame(self,resize=None):
+        ###used to grab frames from the cam connection process
+        
+        ##[resize] param : % of size reduction or increase i.e 0.65 for 35% reduction  or 1.5 for a 50% increase
+             
+        #send request
+        self.parent_conn.send(1)
+        frame = self.parent_conn.recv()
+        
+        #reset request 
+        self.parent_conn.send(0)
+        
+        #resize if needed
+        if resize == None:            
+            return frame
+        else:
+            return self.rescale_frame(frame,resize)
+        
+    def rescale_frame(self,frame, percent=65):
+        
+        return cv2.resize(frame,None,fx=percent,fy=percent) 
 
 from __future__ import print_function
 class PiVideoStream:
@@ -122,18 +193,19 @@ model = tensorflow.keras.models.load_model(MODEL_PATH)
 print("[INFO] starting video stream...")
 # vs = VideoStream(src=0).start()
 # vs = VideoStream(usePiCamera=True).start()
-vs = cv2.VideoCapture('http://192.168.8.148:4747/video')
-vs.set(cv2.CAP_PROP_FPS, 1)
+# vs = cv2.VideoCapture('http://192.168.8.148:4747/video')
+# cap.set(cv.CAP_PROP_FPS, 1)
 time.sleep(2.0)
 start = time.time()
 #fps = FPS().start()
 f = 0
+cam=Camera('http://192.168.8.148:4747/video')
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
-    red, frame = vs.read()
-    # frame = cam.get_frame(0.65)
+    # red, frame = vs.read()
+    frame = cam.get_frame(0.65)
     #A variable f to keep track of total number of frames read
     f += 1
     if frame is not None:
@@ -203,6 +275,6 @@ print("Estimated frames per second : {0}".format(fps))
 #fps.stop()
 #print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
 #print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-# cam.end()
+cam.end()
 cv2.destroyAllWindows()
 vs.stop()
