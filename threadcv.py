@@ -86,7 +86,7 @@ class VideoStream:
         # stop the thread and release any resources
         self.stream.stop()
             
-import request
+import requests
 import cv2
 import imutils
 import keras
