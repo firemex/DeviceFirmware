@@ -135,7 +135,8 @@ while True:
     frame = vs.read()
     #A variable f to keep track of total number of frames read
     f += 1
-    frame = imutils.resize(frame, width=400)
+    if frame is not None:
+        frame = imutils.resize(frame, width=400)
     # prepare the image to be classified by our deep learning network
     image = cv2.resize(frame, (224, 224))
     image = image.astype("float") / 255.0
