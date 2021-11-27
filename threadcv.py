@@ -204,7 +204,7 @@ while True:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
     # red, frame = vs.read()
-    frame = cam.get_frame(0.65)
+    frame = cam.get_frame(0.1)
     #A variable f to keep track of total number of frames read
     f += 1
     if frame is not None:
