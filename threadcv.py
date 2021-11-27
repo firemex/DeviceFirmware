@@ -116,7 +116,7 @@ FIRE = False
 
 # load the model
 print("[INFO] loading model...")
-MODEL_PATH = '/raks_model14.h5'
+MODEL_PATH = './raks_model14.h5'
 model = tensorflow.keras.models.load_model(MODEL_PATH)
 
 # initialize the video stream and allow the camera sensor to warm up
