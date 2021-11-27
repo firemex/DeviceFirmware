@@ -99,9 +99,9 @@ import requests
 # import keras
 import tensorflow
 from imutils.video import FPS, VideoStream
-from imutils.video.pivideostream import PiVideoStream
-from picamera import PiCamera
-from picamera.array import PiRGBArray
+# from imutils.video.pivideostream import PiVideoStream
+# from picamera import PiCamera
+# from picamera.array import PiRGBArray
 from pygame import mixer
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
@@ -109,7 +109,7 @@ from tensorflow.keras.preprocessing.image import img_to_array
 # initialize the total number of frames that *consecutively* contain fire
 # along with threshold required to trigger the fire alarm
 TOTAL_CONSEC = 0
-TOTAL_THRESH = 20
+TOTAL_THRESH = 10
 # initialize the fire alarm
 FIRE = False
 
@@ -167,10 +167,10 @@ while True:
             FIRE = True
             #CODE FOR NOTIFICATION SYSTEM HERE
 	    #A siren will be played indefinitely on the speaker
+            response = requests.post('https://firemex.herokuapp.com/userDetails/emergencyCall,', data = {'serialNumber':'FX114722940','apiKey':'UDVJBFI-JFTUWYA-XE4YCBA-FUYXQBY'})
             mixer.init()
             mixer.music.load('./siren.mp3')
-            mixer.music.play(-1)
-            response = requests.post('https://firemex.herokuapp.com/userDetails/emergencyCall,', data = {'serialNumber':'FX114722940','apiKey':'UDVJBFI-JFTUWYA-XE4YCBA-FUYXQBY'})
+            mixer.music.play(loops=2)
             # otherwise, reset the total number of consecutive frames and the
     # fire alarm
     else:
