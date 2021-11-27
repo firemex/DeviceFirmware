@@ -99,9 +99,9 @@ import requests
 # import keras
 import tensorflow
 from imutils.video import FPS, VideoStream
-# from imutils.video.pivideostream import PiVideoStream
-# from picamera import PiCamera
-# from picamera.array import PiRGBArray
+from imutils.video.pivideostream import PiVideoStream
+from picamera import PiCamera
+from picamera.array import PiRGBArray
 from pygame import mixer
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
