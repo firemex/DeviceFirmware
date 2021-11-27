@@ -89,9 +89,9 @@ class VideoStream:
 import requests
 import cv2
 import imutils
-import keras
-from keras.preprocessing.image import img_to_array
-from keras.models import load_model
+# import keras
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.models import load_model
 from imutils.video import VideoStream
 from imutils.video import FPS
 from threading import Thread
@@ -116,7 +116,7 @@ FIRE = False
 # load the model
 print("[INFO] loading model...")
 MODEL_PATH = '/raks_model14.h5'
-model = keras.models.load_model(MODEL_PATH)
+model = tensorflow.keras.models.load_model(MODEL_PATH)
 
 # initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
