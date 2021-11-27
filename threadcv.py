@@ -133,7 +133,7 @@ f = 0
 while True:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
-    frame = vs.read()
+    red, frame = vs.read()
     #A variable f to keep track of total number of frames read
     f += 1
     if frame is not None:
