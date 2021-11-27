@@ -121,8 +121,9 @@ model = tensorflow.keras.models.load_model(MODEL_PATH)
 
 # initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-vs = VideoStream(src=0).start()
+# vs = VideoStream(src=0).start()
 # vs = VideoStream(usePiCamera=True).start()
+vs = cv2.VideoCapture('http://192.168.8.148:4747/video')
 time.sleep(2.0)
 start = time.time()
 #fps = FPS().start()
