@@ -3,7 +3,6 @@
 #It does the final realtime prediction by taking continuous video feed from the camera, inputting each frame to the model and performing prediction on each frame abd outputting result
 #Connect a Speaker to the raspberry pi to hear siren after positive fire detection
 
-
 from __future__ import print_function
 class PiVideoStream:
     def __init__(self, resolution=(320, 240), framerate=32):
@@ -124,16 +123,18 @@ print("[INFO] starting video stream...")
 # vs = VideoStream(src=0).start()
 # vs = VideoStream(usePiCamera=True).start()
 vs = cv2.VideoCapture('http://192.168.8.148:4747/video')
+cap.set(cv.CAP_PROP_FPS, 1)
 time.sleep(2.0)
 start = time.time()
 #fps = FPS().start()
 f = 0
-
+cam=Camera('http://192.168.8.148:4747/video')
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
     red, frame = vs.read()
+    # frame = cam.get_frame(0.65)
     #A variable f to keep track of total number of frames read
     f += 1
     if frame is not None:
@@ -203,6 +204,6 @@ print("Estimated frames per second : {0}".format(fps))
 #fps.stop()
 #print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
 #print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-
+# cam.end()
 cv2.destroyAllWindows()
 vs.stop()
