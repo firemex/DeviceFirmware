@@ -3,8 +3,9 @@
 #It does the final realtime prediction by taking continuous video feed from the camera, inputting each frame to the model and performing prediction on each frame abd outputting result
 #Connect a Speaker to the raspberry pi to hear siren after positive fire detection
 
-
 from __future__ import print_function
+
+
 class PiVideoStream:
     def __init__(self, resolution=(320, 240), framerate=32):
         # initialize the camera and stream
@@ -59,7 +60,7 @@ class VideoStream:
             # requirement of `picamera[array]` from desktops or
             # laptops that still want to use the `imutils` package
             from pivideostream import PiVideoStream
- 
+
             # initialize the picamera stream and allow the camera
             # sensor to warmup
             self.stream = PiVideoStream(resolution=resolution,
@@ -86,47 +87,48 @@ class VideoStream:
         # stop the thread and release any resources
         self.stream.stop()
             
-import request
+import datetime
+import os
+import time
+from threading import Thread
+
 import cv2
 import imutils
-import keras
-from keras.preprocessing.image import img_to_array
-from keras.models import load_model
-from imutils.video import VideoStream
-from imutils.video import FPS
-from threading import Thread
 import numpy as np
-import time
-import os
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+import requests
+# import keras
+import tensorflow
+from imutils.video import FPS, VideoStream
 from imutils.video.pivideostream import PiVideoStream
-import datetime
+from picamera import PiCamera
+from picamera.array import PiRGBArray
 from pygame import mixer
- 
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
 
 # initialize the total number of frames that *consecutively* contain fire
 # along with threshold required to trigger the fire alarm
 TOTAL_CONSEC = 0
-TOTAL_THRESH = 20
+TOTAL_THRESH = 5
 # initialize the fire alarm
 FIRE = False
 
 
 # load the model
 print("[INFO] loading model...")
-MODEL_PATH = '/raks_model14.h5'
-model = keras.models.load_model(MODEL_PATH)
+MODEL_PATH = './raks_model14.h5'
+model = tensorflow.keras.models.load_model(MODEL_PATH)
 
 # initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-#vs = VideoStream(src=0).start()
-vs = VideoStream(usePiCamera=True).start()
+vs = VideoStream(src=0).start()
+# vs = VideoStream(usePiCamera=True).start()
+# vs = cv2.VideoCapture('http://192.168.8.148:4747/video')
+
 time.sleep(2.0)
 start = time.time()
 #fps = FPS().start()
 f = 0
-
 # loop over the frames from the video stream
 while True:
     # grab the frame from the threaded video stream and resize it
@@ -134,7 +136,8 @@ while True:
     frame = vs.read()
     #A variable f to keep track of total number of frames read
     f += 1
-    frame = imutils.resize(frame, width=400)
+    if frame is not None:
+        frame = imutils.resize(frame, width=400)
     # prepare the image to be classified by our deep learning network
     image = cv2.resize(frame, (224, 224))
     image = image.astype("float") / 255.0
@@ -151,23 +154,34 @@ while True:
     proba = notFire
     # check to see if fire was detected using our convolutional
     # neural network
-    if fire > notFire:
+    key = cv2.waitKey(1) & 0xFF
+
+    if key==ord('p'):
+    # if fire > notFire:
         # update the label and prediction probability
         label = "Fire"
-        proba = fire
- 
+        proba = fire if fire > notFire else notFire
+        print("Fire Detected")
         # increment the total number of consecutive frames that
         # contain fire
         TOTAL_CONSEC += 1
         if not FIRE and TOTAL_CONSEC >= TOTAL_THRESH:
+            print("Alert triggered")
             # indicate that fire has been found
             FIRE = True
             #CODE FOR NOTIFICATION SYSTEM HERE
 	    #A siren will be played indefinitely on the speaker
+            url = "https://firemex.herokuapp.com/userDetails/emergencyCall"
+            payload='serialNumber=FX114722940&apiKey=UDVJBFI-JFTUWYA-XE4YCBA-FUYXQBY'
+            headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+            }
+            response = requests.request("POST", url, headers=headers, data=payload)
+            print(response.text)
+
             mixer.init()
-            mixer.music.load('/home/pi/Desktop/siren.mp3')
-            mixer.music.play(-1)
-            response = requests.post('https://firemex.herokuapp.com/userDetails/emergencyCall,', data = {'serialNumber':'FX114722940','apiKey':'UDVJBFI-JFTUWYA-XE4YCBA-FUYXQBY'})
+            mixer.music.load('./siren.mp3')
+            mixer.music.play(loops=2)
             # otherwise, reset the total number of consecutive frames and the
     # fire alarm
     else:
@@ -199,6 +213,5 @@ print("Estimated frames per second : {0}".format(fps))
 #fps.stop()
 #print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
 #print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
-
 cv2.destroyAllWindows()
 vs.stop()
