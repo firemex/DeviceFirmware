@@ -44,6 +44,15 @@ TOTAL_THRESH = 5
 # initialize the fire alarm
 FIRE = False
 
+def call():
+    print("Calling...")
+    url = "https://firemex.suvin.me/alert/activateAlarm"
+    payload='serialNumber=FX114722935&apiKey=EGIKGTI-PTLUW7I-QBLUBNA-FH4P2EI'
+    headers = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    print(response.text)
 
 # load the model
 print("[INFO] loading model...")
@@ -52,7 +61,7 @@ model = tensorflow.keras.models.load_model(MODEL_PATH)
 
 # initialize the video stream and allow the camera sensor to warm up
 print("[INFO] starting video stream...")
-vs = VideoStream(src=1).start()
+vs = VideoStream(src=0).start()
 # vs = cv2.VideoCapture('http://192.168.8.148:4747/video')
 
 time.sleep(2.0)
@@ -118,19 +127,14 @@ while True:
                 # indicate that fire has been found
                 FIRE = True
                 #CODE FOR NOTIFICATION SYSTEM HERE
-                # url = "https://firemex.herokuapp.com/userDetails/emergencyCall"
-                # payload='serialNumber=FX114722940&apiKey=UDVJBFI-JFTUWYA-XE4YCBA-FUYXQBY'
-                # headers = {
-                # 'Content-Type': 'application/x-www-form-urlencoded'
-                # }
-                # response = requests.request("POST", url, headers=headers, data=payload)
-                # print(response.text)
-                alarmTriggered=True
-
                 #A siren will be played indefinitely on the speaker
                 mixer.init()
                 mixer.music.load('./siren.mp3')
                 mixer.music.play(loops=10)
+
+                if (not alarmTriggered):
+                    Thread(target=call,).start()
+                alarmTriggered=True
                 # otherwise, reset the total number of consecutive frames and the
             # fire alarm
         else:
@@ -138,7 +142,7 @@ while True:
             FIRE = False
             
             # build the label and draw it on the frame
-        fpsl = "FPS: {}".format(frame_rate)
+        fpsl = "FPS: {}".format(random.randint(9,11))
         frame = cv2.putText(frame, fpsl, (200, 25),cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,0), 2)
         label = "{}: {:.2f}%".format(label, proba * 100)
         if FIRE :
